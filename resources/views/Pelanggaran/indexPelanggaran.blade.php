@@ -69,7 +69,6 @@
 
 
             </div>
-
             {{-- tambah --}}
             {{-- <div class="md:mt-2">
                 <a href="{{ route('karyawan.create') }}"

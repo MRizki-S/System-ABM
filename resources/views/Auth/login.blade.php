@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login Page</title>
-    {{-- @vite('resources/css/app.css') --}}
+    @vite('resources/css/app.css')
     {{-- <link rel="stylesheet" href="{{ asset('build/assets/app-DXEcpfVM.css') }}"> --}}
     <script src="{{ asset('build/assets/app-DNxiirP_.js') }}"></script>
 
