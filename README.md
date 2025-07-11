@@ -25,38 +25,38 @@ Sistem ini merupakan aplikasi absensi berbasis web yang dibangun menggunakan Lar
 
 ### 1. Clone Repository
 
-https://github.com/MRizki-S/System-ABM.git
-cd System-ABM
+    git clone https://github.com/MRizki-S/System-ABM.git
+    cd System-ABM
 
 ### 2. Install Dependency Laravel
 
-composer install
-cp .env.example .env
-php artisan key:generate
+    composer install
+    cp .env.example .env
+    php artisan key:generate
 
 ### 3. Install Dependecy Tailwind + Vite
 
-npm install  
-npm run dev
+    npm install  
+    npm run dev
 
 ### 4. Konfigurasi Database
 
 Edit file .env:
 
-DB_CONNECTION=mysql  
-DB_HOST=127.0.0.1  
-DB_PORT=3306  
-DB_DATABASE=NamaDatabase  
-DB_USERNAME=root  
-DB_PASSWORD=
+    DB_CONNECTION=mysql  
+    DB_HOST=127.0.0.1  
+    DB_PORT=3306  
+    DB_DATABASE=NamaDatabase  
+    DB_USERNAME=root  
+    DB_PASSWORD=
 
 ### 5. Migrasi dan Seeder
 
-php artisan migrate --seed
+    php artisan migrate --seed
 
 ### 6. Jalankan Server
 
-php artisan serve
+    php artisan serve
 
 Akses aplikasi di http://localhost:8000
 
