@@ -36,18 +36,18 @@ Sistem ini merupakan aplikasi absensi berbasis web yang dibangun menggunakan Lar
 
 ### 3. Install Dependecy Tailwind + Vite
 
-    npm install  
+    npm install
     npm run dev
 
 ### 4. Konfigurasi Database
 
 Edit file .env:
 
-    DB_CONNECTION=mysql  
-    DB_HOST=127.0.0.1  
-    DB_PORT=3306  
-    DB_DATABASE=NamaDatabase  
-    DB_USERNAME=root  
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=NamaDatabase
+    DB_USERNAME=root
     DB_PASSWORD=
 
 ### 5. Migrasi dan Seeder
