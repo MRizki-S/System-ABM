@@ -20,6 +20,42 @@ Route::get('/404', function () {
     return view('errors.404');
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::middleware(['role:superadmin,hrd'])->group(function () {
+        // Menu karyawan dan Jam kerja hanya bisa diakses oleh superadmin
+        Route::resource('/karyawan', KaryawanController::class);
+        Route::post('/gaji/reset-all', [KaryawanController::class, 'resetAllSalaries'])
+            ->name('gaji.reset_all');
+
+        Route::resource('/jam-kerja', JamKerjaController::class);
+
+        Route::get('/rekap-absensi/export', [RekapAbsensiController::class, 'exportExcel'])->name('rekap.export');
+        Route::resource('/rekap-absensi', RekapAbsensiController::class);
+    });
+
+    // dashboard url
+    Route::get('/', [DashboardController::class, 'DashboardKaryawan'])->name('dashboard');
+
+    Route::get('/profile', [ProfileController::class, 'showProfile']);
+    Route::put('/profile/update', [ProfileController::class, 'updateProfile']);
+
+
+    Route::prefix('absensi/')->group(function () {
+        Route::get('/check-in', [AbsensiController::class, 'checkInView']);
+        Route::post('/check-inAksi', [AbsensiController::class, 'checkInAksi']);
+        Route::get('/check-out', [AbsensiController::class, 'checkOutView']);
+        Route::post('/check-outAksi', [AbsensiController::class, 'checkOutAksi']);
+
+        Route::get('/absen', [AbsensiController::class, 'absenView'])->name('absen');
+        Route::post('/absenAksi', [AbsensiController::class, 'absenAksi']);
+    });
+
+    Route::resource('/pelanggaran', PelanggaranController::class);
+});
+
+
 // Route::get('/fonnte-get-group-id-manual', function () {
 //     $apiKey = env('FONNTE_API_KEY');
 //     $fetchGroupUrl = env('FONNTE_FETCH_GROUP_URL');
@@ -113,38 +149,3 @@ Route::get('/404', function () {
 //         return response('Terjadi kesalahan saat mengambil grup: ' . $e->getMessage(), 500);
 //     }
 // })->name('fonnte.get_group_id_manual'); // Beri nama route untuk kemudahan
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    Route::middleware(['role:superadmin,hrd'])->group(function () {
-        // Menu karyawan dan Jam kerja hanya bisa diakses oleh superadmin
-        Route::resource('/karyawan', KaryawanController::class);
-        Route::post('/gaji/reset-all', [KaryawanController::class, 'resetAllSalaries'])
-            ->name('gaji.reset_all');
-
-        Route::resource('/jam-kerja', JamKerjaController::class);
-
-        Route::get('/rekap-absensi/export', [RekapAbsensiController::class, 'exportExcel'])->name('rekap.export');
-        Route::resource('/rekap-absensi', RekapAbsensiController::class);
-    });
-
-    // dashboard url
-    Route::get('/', [DashboardController::class, 'DashboardKaryawan'])->name('dashboard');
-
-    Route::get('/profile', [ProfileController::class, 'showProfile']);
-    Route::put('/profile/update', [ProfileController::class, 'updateProfile']);
-
-
-    Route::prefix('absensi/')->group(function () {
-        Route::get('/check-in', [AbsensiController::class, 'checkInView']);
-        Route::post('/check-inAksi', [AbsensiController::class, 'checkInAksi']);
-        Route::get('/check-out', [AbsensiController::class, 'checkOutView']);
-        Route::post('/check-outAksi', [AbsensiController::class, 'checkOutAksi']);
-
-        Route::get('/absen', [AbsensiController::class, 'absenView'])->name('absen');
-        Route::post('/absenAksi', [AbsensiController::class, 'absenAksi']);
-    });
-
-    Route::resource('/pelanggaran', PelanggaranController::class);
-});
