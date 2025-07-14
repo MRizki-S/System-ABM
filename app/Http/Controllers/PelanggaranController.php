@@ -65,7 +65,13 @@ class PelanggaranController extends Controller
     public function destroy($id)
     {
         $pelanggaran = Punishment::with('user')->findOrFail($id);
+        $user = $pelanggaran->user;
 
+        // Cek j    ika gaji_total lebih besar dari gaji_pokok (sudah di-reset tapi ingin hapus pelanggaran lama)
+        if ($user->gaji_total >= $user->gaji_pokok) {
+            Session::flash('error', 'Tidak bisa menghapus pelanggaran ini. Hubungi staff IT. Pelanggaran ini berkaitan dengan potongan gaji yang sudah direset ke default.');
+            return redirect()->back();
+        }
 
         // Ambil nilai potongan
         $potongan = $pelanggaran->potongan ?? 0;

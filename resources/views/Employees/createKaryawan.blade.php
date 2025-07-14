@@ -14,7 +14,9 @@
             <div class="mb-5 w-full">
                 <label for="username" class="block mb-2 text-sm font-medium text-gray-900">Username</label>
                 <input type="text" id="username" name="username"
-                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    class="bg-white border text-gray-900 text-sm rounded-lg w-full p-2.5
+                    @error('username') border-red-500 focus:border-red-500 focus:ring-red-500
+                    @else border-gray-300 focus:border-blue-500 focus:ring-blue-500 @enderror"
                     placeholder="user1" required value="{{ old('username') }}" />
                 @error('username')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -25,7 +27,9 @@
             <div class="mb-5 w-full">
                 <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Password</label>
                 <input type="password" id="password" name="password"
-                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    class="bg-white border text-gray-900 text-sm rounded-lg w-full p-2.5
+                     @error('password') border-red-500 focus:border-red-500 focus:ring-red-500
+                    @else border-gray-300 focus:border-blue-500 focus:ring-blue-500 @enderror"
                     placeholder="********" required />
                 @error('password')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -38,7 +42,9 @@
             <div class="mb-5 w-full">
                 <label for="nama_lengkap" class="block mb-2 text-sm font-medium text-gray-900">Nama Lengkap</label>
                 <input type="text" id="nama_lengkap" name="nama_lengkap"
-                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    class="bg-white bordertext-gray-900 text-sm rounded-lg w-full p-2.5
+                    @error('nama_lengkap') border-red-500 focus:border-red-500 focus:ring-red-500
+                    @else border-gray-300 focus:border-blue-500 focus:ring-blue-500 @enderror"
                     placeholder="Nama Lengkap" required value="{{ old('nama_lengkap') }}" />
                 @error('nama_lengkap')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -48,7 +54,7 @@
             <!-- role -->
             <div class="w-full">
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900 ">Role</label>
-                <select id="role" name="role"
+                <select id="role" name="role" @required(true)
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                     <option value="">Select a role</option>
                     <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }}>HRD</option>
@@ -75,7 +81,8 @@
 
             {{-- potongan keterlambatan --}}
             <div class="mb-5 w-full">
-                <label for="potongan_keterlambatan" class="block mb-2 text-sm font-medium text-gray-900">Potongan Keterlambatan</label>
+                <label for="potongan_keterlambatan" class="block mb-2 text-sm font-medium text-gray-900">Potongan
+                    Keterlambatan</label>
                 <input type="number" id="potongan_keterlambatan" name="potongan_keterlambatan"
                     class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     placeholder="000" required value="{{ old('potongan_keterlambatan') }}" />
@@ -88,7 +95,7 @@
             <div class="w-full">
                 <label for="devisi_id" class="block mb-2 text-sm font-medium text-gray-900 ">Devisi</label>
                 <select id="devisi_id" name="devisi_id"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     <option value="">Pilih Devisi</option>
                     @foreach ($devisi as $devisiItem)
                         <option value="{{ $devisiItem->id }}" data-jam-mulai="{{ $devisiItem->jam_mulai }}"

@@ -280,7 +280,7 @@ class AbsensiController extends Controller
         $request->validate([
             'tanggal' => 'required|date',
             'jenis' => 'required|in:sakit,izin',
-            'keterangan' => 'nullable|string|max:255',
+            'keterangan' => 'required|string|max:40',
         ]);
 
         $absensiAbsen = Absensi::create([
@@ -307,11 +307,13 @@ class AbsensiController extends Controller
             $userName = $user->nama_lengkap; // Ambil nama lengkap user
             $formattedDate = Carbon::parse($request->tanggal)->translatedFormat('d-m-Y'); // Format tanggal: 30-06-2025
             $jenisAbsen = ucfirst($request->jenis); // Sakit atau Izin
+            $keterangan = $request->keterangan;
 
             $pesanNotifikasi = "";
 
             // pesan notifikasi untuk sakit dan izin
             $pesanNotifikasi .= "*" . $userName . "* tidak dapat hadir dikarenakan *" . $jenisAbsen . "* pada tanggal " . $formattedDate . ".";
+            $pesanNotifikasi .= "\n*Keterangan:* " . $keterangan;
 
             // Panggil service untuk mengirim pesan
             if (!empty($pesanNotifikasi)) { // Pastikan pesan tidak kosong

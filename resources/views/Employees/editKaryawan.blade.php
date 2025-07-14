@@ -19,7 +19,9 @@
             <div class="mb-5 w-full">
                 <label for="username" class="block mb-2 text-sm font-medium text-gray-900">Username</label>
                 <input type="text" id="username" name="username"
-                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
+                    class="bg-white border text-gray-900 text-sm rounded-lg  w-full p-2.5
+                    @error('username') border-red-500 focus:border-red-500 focus:ring-red-500
+                    @else border-gray-300 focus:border-blue-500 focus:ring-blue-500 @enderror"
                     placeholder="user1" required value="{{ $editKaryawan->username }}" />
                 @error('username')
                     <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
@@ -54,7 +56,7 @@
             <div class="w-full">
                 <label for="role" class="block mb-2 text-sm font-medium text-gray-900 ">Role</label>
                 <select id="role" name="role"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
                     <option value="">Select a role</option>
                     <option value="superadmin"
                         {{ old('role', $editKaryawan->role ?? '') == 'superadmin' ? 'selected' : 'hidden' }}>
