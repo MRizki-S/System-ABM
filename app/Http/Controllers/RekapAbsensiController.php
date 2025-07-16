@@ -21,23 +21,26 @@ class RekapAbsensiController extends Controller
         $selectedDate = null; // Default: tidak ada tanggal yang dipilih
 
         if ($request->has('tanggal_filter') && !empty($request->tanggal_filter)) {
-            // Konversi tanggal dari request ke format YYYY-MM-DD
+            // Jika filter tanggal ada, gunakan tanggal tersebut
             $filterDate = Carbon::parse($request->tanggal_filter)->toDateString();
-
-            // Tambahkan kondisi whereDate pada kolom 'tanggal' di tabel Absensi
             $query->whereDate('tanggal', $filterDate);
-
-            // Simpan tanggal yang difilter untuk ditampilkan kembali di input form
             $selectedDate = $request->tanggal_filter;
+        } else {
+            // Jika tidak ada filter, tampilkan data bulan ini
+            $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+            $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+            $query->whereBetween('tanggal', [$startOfMonth, $endOfMonth]);
         }
         // --- Akhir Logika Filter Tanggal ---
 
         // Urutkan data berdasarkan tanggal terbaru (descending)
         $dataRekapAbsensi = $query->orderBy('tanggal', 'desc')->get();
 
-        // Kirim data ke view, termasuk tanggal yang dipilih untuk pre-fill filter
-        return view('RekapAbsensi.indexRekapAbsensi', compact('dataRekapAbsensi', 'selectedDate'));
+        $namaBulan = Carbon::now()->locale('id')->translatedFormat('F Y'); // contoh: Juli 2025
+
+        return view('RekapAbsensi.indexRekapAbsensi', compact('dataRekapAbsensi', 'selectedDate', 'namaBulan'));
     }
+
 
     // expor to excel
     public function exportExcel(Request $request)

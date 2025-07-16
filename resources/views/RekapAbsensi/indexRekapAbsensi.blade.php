@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-    <h3 class="text-3xl font-bold text-gray-800 mb-4">Rekap Absensi</h3>
+    <h3 class="text-3xl font-bold text-gray-800 mb-4">
+        Rekap Absensi -
+        {{ $selectedDate ? \Carbon\Carbon::parse($selectedDate)->locale('id')->translatedFormat('d F Y') : $namaBulan }}
+    </h3>
+
     <a href="/rekap-absensi" class="inline-block text-blue-600 border-b border-gray-300 mb-5">Rekap Absensi / </a>
 
     @if ($errors->any())
