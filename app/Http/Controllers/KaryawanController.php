@@ -60,8 +60,8 @@ class KaryawanController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'devisi_id' => 'required|exists:jam_kerja_devisi,id',
             'role' => 'required',
-            'gaji_pokok' => 'nullable|min:0',
-            'potongan_keterlambatan' => 'nullable|min:0',
+            'potongan_keterlambatan' => 'nullable|numeric|min:1',
+            'gaji_pokok' => 'nullable|numeric|min:1',
         ]);
         // dd($request->all());
 
@@ -124,7 +124,8 @@ class KaryawanController extends Controller
             'nama_lengkap' => 'required|string|max:255',
             'devisi_id' => 'required|exists:jam_kerja_devisi,id',
             'role' => 'required',
-            'gaji_pokok' => 'required|min:0',
+            'potongan_keterlambatan' => 'nullable|numeric|min:1',
+            'gaji_pokok' => 'nullable|numeric|min:1',
         ]);
         // dd($request->all());
         $request['gaji_total'] = $request->gaji_pokok; // Set gaji_total to gaji_pokok by default

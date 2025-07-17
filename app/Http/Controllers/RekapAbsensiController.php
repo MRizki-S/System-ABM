@@ -26,9 +26,11 @@ class RekapAbsensiController extends Controller
             $query->whereDate('tanggal', $filterDate);
             $selectedDate = $request->tanggal_filter;
         } else {
-            // Jika tidak ada filter, tampilkan data bulan ini
-            $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
-            $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
+            $bulanNow = Carbon::now()->startOfMonth(); // ambil awal bulan ini
+
+            $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+            $endOfMonth = $bulanNow->copy()->day(25); // 25 bulan sekarang
+
             $query->whereBetween('tanggal', [$startOfMonth, $endOfMonth]);
         }
         // --- Akhir Logika Filter Tanggal ---
@@ -40,7 +42,6 @@ class RekapAbsensiController extends Controller
 
         return view('RekapAbsensi.indexRekapAbsensi', compact('dataRekapAbsensi', 'selectedDate', 'namaBulan'));
     }
-
 
     // expor to excel
     public function exportExcel(Request $request)
@@ -118,8 +119,8 @@ class RekapAbsensiController extends Controller
             ], $view), $filename);
         } elseif ($category === 'bulan') {
             $bulan = Carbon::createFromFormat('Y-m', $request->bulan);
-            $start = $bulan->copy()->startOfMonth();
-            $end = $bulan->copy()->endOfMonth();
+            $start = $bulan->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+            $end = $bulan->copy()->day(25); // 25 bulan yg dipilih
 
             // Buat daftar tanggal sebulan
             $tanggalList = [];
@@ -209,12 +210,14 @@ class RekapAbsensiController extends Controller
             }
             // dd($rekap);
 
-            $filename = 'rekap-bulanan-' . $start->format('Y-m') . '.xlsx';
+            $bulanTerpilih = Carbon::createFromFormat('Y-m', $request->bulan);
+            $filename = 'rekap-bulanan-' . $bulanTerpilih->translatedFormat('F-Y') . '.xlsx';
             $view = 'export.rekap-bulanan';
 
             return Excel::download(
                 new AbsensiExport([
                     'rekap' => $rekap,
+                    'bulan' => $bulanTerpilih,
                     'tanggalList' => $tanggalList,
                 ], $view),
                 $filename

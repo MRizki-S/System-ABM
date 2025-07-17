@@ -196,10 +196,17 @@ class AbsensiController extends Controller
             'longitude' => 'required|numeric',
         ]);
 
-        $userId = Auth::id();
+        $user = Auth::user();
+        // dd($user->devisi->jam_selesai);
         $today = Carbon::today()->toDateString();
+        $waktuKeluar = Carbon::parse($request->waktu_keluar);
+        $jamSelesai = Carbon::parse($user->devisi->jam_selesai);
 
-        $absensi = Absensi::where('user_id', $userId)
+        if ($waktuKeluar->lt($jamSelesai)) {
+            return redirect()->back()->with('error', 'Waktu check-out tidak boleh sebelum jam selesai kerja (' . $jamSelesai->format('H:i') . ').');
+        }
+
+        $absensi = Absensi::where('user_id', $user->id)
             ->where('tanggal', $today)
             ->where('jenis', 'check_in')
             ->first();
@@ -240,7 +247,6 @@ class AbsensiController extends Controller
 
         // --- Bagian PENTING: Kirim Pesan ke Grup WhatsApp ---
         try {
-            $user = Auth::user(); // Ambil data user yang sedang login
             // Pastikan user memiliki properti 'nama_lengkap'
             $userName = $user->nama_lengkap;
             $checkoutTime = Carbon::parse($request->waktu_keluar)->format('H:i');

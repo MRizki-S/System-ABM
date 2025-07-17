@@ -7,8 +7,8 @@
     </tr>
     <tr>
         <th colspan="{{ count($tanggalList) + 8 }}"
-            style="font-weight: bold;  text-align: center; bold; border: 1px solid black;">
-            PERIODE {{ \Carbon\Carbon::parse($tanggalList[0])->translatedFormat('F Y') }}
+            style="font-weight: bold; text-align: center; border: 1px solid black;">
+            PERIODE {{ $bulan->translatedFormat('F Y') }}
         </th>
     </tr>
 
@@ -23,14 +23,14 @@
             @endphp
             <th
                 style="border: 1px solid black; text-align: center; {{ $isSunday ? 'background-color: #FF0000; color: white;' : '' }}">
-                {{ $carbonDate->format('d') }}
+                {{ $carbonDate->format('d M') }} {{-- Contoh: 01 Jul --}}
             </th>
         @endforeach
         <th style="border: 1px solid black;">Hadir</th>
         <th style="border: 1px solid black;">Izin</th>
         <th style="border: 1px solid black;">Sakit</th>
         <th style="border: 1px solid black;">Gaji Pokok</th>
-        <th style="border: 1px solid black;">Potongan</th>
+        <th style="border: 1px solid black;">Total Potongan</th>
         <th style="border: 1px solid black;">Gaji Akhir</th>
     </tr>
 
@@ -73,6 +73,9 @@
     </tr>
     <tr>
         <td colspan="3" style="border: none;">S = Sakit</td>
+    </tr>
+    <tr>
+        <td colspan="3" style="border: none;">Gaji Pokok = Gaji Awal sebelum potongan keterlambatan</td>
     </tr>
     <tr>
         <td colspan="3" style="border: none;">Potongan = Total potongan denda keterlambatan</td>

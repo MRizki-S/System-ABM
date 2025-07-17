@@ -14,7 +14,7 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
-    <link rel="stylesheet" href="{{ asset('build/assets/app-5qhOMnda.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-CCMH2dAb.css') }}">
 
     {{-- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" /> --}}
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet" />
@@ -64,8 +64,8 @@
                     <a href="https://asadreamland.com" class="flex items-center">
                         <img src="{{ asset('assets/img/logo-abm2.png') }}" class="h-12 ms-3"
                             alt="Alvin Bhakti Mandiri Logo" />
-                        <span class="self-center text-blue-500 text-xl font-semibold whitespace-nowrap font-">ABM S<span
-                                class="text-black">ys</span>tem</span>
+                        <span class="self-center text-blue-500 text-xl font-semibold whitespace-nowrap font-">ASA G<span
+                                class="text-black">RO</span>UP</span>
                     </a>
 
                 </div>

@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login Page</title>
     {{-- @vite('resources/css/app.css') --}}
-    <link rel="stylesheet" href="{{ asset('build/assets/app-5qhOMnda.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-CCMH2dAb.css') }}">
     <script src="{{ asset('build/assets/app-DNxiirP_.js') }}"></script>
 
 
@@ -33,7 +33,7 @@
             <div class="text-center">
                 <h1 class="text-5xl font-bold mb-4">Welcome Back!</h1>
                 <p class="text-lg font-medium mb-6">Access your account to continue</p>
-                <img src="{{ asset('assets/img/login-bg.png') }}" alt="Login Illustration" class="w-3/4 mx-auto">
+                <img src="{{ asset('assets/img/logo-abm2-up.png') }}" alt="Login Illustration" class="rounded-full  w-3/4 mx-auto">
             </div>
         </div>
 

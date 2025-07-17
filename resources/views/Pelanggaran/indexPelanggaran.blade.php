@@ -1,7 +1,19 @@
 @extends('layouts.app')
 
 @section('content')
-    <h3 class="text-3xl font-bold text-gray-800 mb-4">Pelanggaran</h3>
+    @php
+        use Carbon\Carbon;
+
+        $bulanNow = Carbon::now()->startOfMonth();
+        $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+        $endOfMonth = $bulanNow->copy()->day(25); // 25 bulan ini
+    @endphp
+
+    <h3 class="text-3xl font-bold text-gray-800 mb-0">Pelanggaran</h3>
+    <p class="text-sm text-gray-400 mb-4 italic">
+        *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }} {{ $startOfMonth->translatedFormat('F') }}
+        - {{ $endOfMonth->format('d') }} {{ $endOfMonth->translatedFormat('F') }}
+    </p>
     <a href="/pelanggaran" class="inline-block text-blue-600 border-b border-gray-300">Pelanggaran / </a>
 
     {{-- {{$dataPelanggaran->toArray()}} --}}

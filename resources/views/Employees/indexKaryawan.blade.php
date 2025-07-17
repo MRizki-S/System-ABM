@@ -64,7 +64,7 @@
             <div class="md:mt-2 flex justify-center gap-2">
                 <a href="#" data-modal-target="popup-modal-resetGajiKaryawan"
                     data-modal-toggle="popup-modal-resetGajiKaryawan"
-                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300">
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300">
                     Reset Gaji Akhir
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
                         class="w-4 h-4 ms-2 text-whitetransition duration-75  group-hover:text-gray-900 "
@@ -208,20 +208,22 @@
                     </svg>
                     <span class="sr-only">Close modal</span>
                 </button>
-                <form class="p-4 md:p-5 text-center" action="{{route('gaji.reset_all')}}" method="POST">
+                <form class="p-4 md:p-5 text-center" action="{{ route('gaji.reset_all') }}" method="POST">
                     @csrf
                     <svg class="mx-auto mb-4 text-yellow-400 w-12 h-12 " aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                     </svg>
-                    <h3 class="mb-5 text-lg font-normal text-gray-500 border-b border-gray-400">Apakah kamu yakin ingin melakukan reset seluruh
+                    <h3 class="mb-5 text-lg font-normal text-gray-500 border-b border-gray-400">Apakah kamu yakin ingin
+                        melakukan reset seluruh
                         Gaji akhir karyawan?</h3>
                     {{-- Teks kecil yang ditambahkan di sini --}}
                     <p class="text-sm text-red-400 mb-5">
-                        Reset gaji biasanya dilakukan setiap akhir bulan antara tanggal 30/31. Periksa kembali apakah sudah
-                        benar.
+                        Reset gaji dilakukan tiap tanggal 25. Pastikan rekap absensi bulan ini sudah diekspor sebelum
+                        mereset.
                     </p>
+
                     <button data-modal-hide="popup-modal-resetGajiKaryawan" type="submit"
                         class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300  font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
                         Ya, Reset

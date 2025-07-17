@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        use Carbon\Carbon;
+
+        $bulanNow = Carbon::now()->startOfMonth();
+        $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+        $endOfMonth = $bulanNow->copy()->day(25); // 25 bulan ini
+    @endphp
     <h3 class="text-3xl font-bold text-gray-800 mb-4">Dashboard</h3>
     <a href="/dashboard" class="inline-block text-blue-600 border-b border-gray-300">Dashboard /</a>
 
