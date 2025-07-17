@@ -214,6 +214,8 @@ class RekapAbsensiController extends Controller
             $filename = 'rekap-bulanan-' . $bulanTerpilih->translatedFormat('F-Y') . '.xlsx';
             $view = 'export.rekap-bulanan';
 
+            // dd($bulanTerpilih);
+
             return Excel::download(
                 new AbsensiExport([
                     'rekap' => $rekap,
