@@ -11,14 +11,15 @@
 
     <h3 class="text-3xl font-bold text-gray-800 mb-0">Pelanggaran</h3>
     <p class="text-sm text-gray-400 mb-4 italic">
-        *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }} {{ $startOfMonth->translatedFormat('F') }}
+        *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }}
+        {{ $startOfMonth->translatedFormat('F') }}
         - {{ $endOfMonth->format('d') }} {{ $endOfMonth->translatedFormat('F') }}
     </p>
     <a href="/pelanggaran" class="inline-block text-blue-600 border-b border-gray-300">Pelanggaran / </a>
 
     {{-- {{$dataPelanggaran->toArray()}} --}}
 
-    <div class="relative shadow-md sm:rounded-lg mt-5">
+    <div class="relative shadow-md p-2 sm:rounded-lg mt-5">
         {{-- dropdown --}}
         <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
             <div class="flex items-start space-x-4 flex-col md:items-start lg:items-center xl:items-center">
@@ -61,25 +62,6 @@
                         </a>
                     </div>
                 </form>
-
-                {{-- <label for="table-search" class="sr-only">Search</label> --}}
-                <div class="relative">
-                    <div
-                        class="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-500 " aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <input type="text" id="table-search"
-                        class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-full bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Cari nama karyawan">
-                </div>
-
-
-
             </div>
             {{-- tambah --}}
             {{-- <div class="md:mt-2">
@@ -92,75 +74,113 @@
         </div>
 
         {{-- table --}}
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500" id="pelanggaranTable">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">Nama Lengkap</th>
-                        <th scope="col" class="px-6 py-3">Devisi</th>
-                        <th scope="col" class="px-6 py-3">Tanggal</th>
-                        <th scope="col" class="px-6 py-3">Jam Terlambat</th>
-                        <th scope="col" class="px-6 py-3">Potongan</th>
+        <table id="search-table" class="w-full text-sm text-left rtl:text-right text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        <span class="flex items-center">
+                            Nama Lengkap
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        <span class="flex items-center">
+                            Devisi
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
+                    <th scope="col" class="px-6 py-3" data-type="date" data-format="DD-MM-YYYY">
+                        <span class="flex items-center">
+                            Tanggal
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        <span class="flex items-center">
+                            Jam Terlambat
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-center">
+                        <span class="flex items-center justify-center">
+                            Potongan
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                    stroke-width="2" d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
+                    @if (Auth::user()->role == 'superadmin' || Auth::user()->role == 'hrd')
+                        <th scope="col" class="px-6 py-3 text-center">
+                            <span class="flex items-center justify-center">Aksi</span>
+                        </th>
+                    @endif
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($dataPelanggaran as $item)
+                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                        <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            {{ $item->user->nama_lengkap }}
+                        </td>
+                        @php
+                            $devisi = $item->user->devisi->nama_devisi ?? '-';
+                            $bgColor = match ($devisi) {
+                                'operasional' => 'bg-yellow-100 text-yellow-800',
+                                'keuangan' => 'bg-red-100 text-red-800',
+                                'pemasaran' => 'bg-green-100 text-green-800',
+                                'produksi 1' => 'bg-blue-900 text-white',
+                                'produksi 2' => 'bg-blue-100 text-blue-800',
+                                default => 'bg-gray-100 text-gray-700',
+                            };
+                        @endphp
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium {{ $bgColor }}">
+                                {{ $devisi }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $item->absensi->tanggal->format('d-m-Y') }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $item->jam_keterlambatan }}
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            @if ($item->potongan)
+                                Rp {{ number_format($item->potongan, 0, ',', '.') }}
+                            @else
+                                -
+                            @endif
+                        </td>
                         @if (Auth::user()->role == 'superadmin' || Auth::user()->role == 'hrd')
-                            <th scope="col" class="px-6 py-3 text-center">Aksi</th>
+                            <td class="px-6 py-4 text-center">
+                                <a href="#" class="font-medium text-red-600 hover:underline"
+                                    data-modal-target="popup-modal-{{ $item->id }}"
+                                    data-modal-toggle="popup-modal-{{ $item->id }}">Hapus</a>
+                            </td>
                         @endif
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach ($dataPelanggaran as $item)
-                        <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
-                            <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                {{ $item->user->nama_lengkap }}
-                            </td>
-                            @php
-                                $devisi = $item->user->devisi->nama_devisi ?? '-';
-                                $bgColor = match ($devisi) {
-                                    'operasional' => 'bg-yellow-100 text-yellow-800',
-                                    'keuangan' => 'bg-red-100 text-red-800',
-                                    'pemasaran' => 'bg-green-100 text-green-800',
-                                    'produksi 1' => 'bg-blue-900 text-white',
-                                    'produksi 2' => 'bg-blue-100 text-blue-800',
-                                    default => 'bg-gray-100 text-gray-700',
-                                };
-                            @endphp
-                            <td class="px-6 py-4">
-                                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $bgColor }}">
-                                    {{ $devisi }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $item->absensi->tanggal->format('d-m-Y') }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ $item->jam_keterlambatan }}
-                            </td>
-
-                            <td class="px-6 py-4">
-                                @if ($item->potongan)
-                                    Rp {{ number_format($item->potongan, 0, ',', '.') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            @if (Auth::user()->role == 'superadmin' || Auth::user()->role == 'hrd')
-                                <td class="px-6 py-4 space-x-3 text-center">
-                                    {{-- <a href="{{ route('pelanggaran.edit', $item->id) }}"
-                                    class="font-medium text-blue-600 hover:underline">Detail</a> --}}
-                                    <a href="#" class="font-medium text-red-600 hover:underline"
-                                        data-modal-target="popup-modal-{{ $item->id }}"
-                                        data-modal-toggle="popup-modal-{{ $item->id }}">Hapus</a>
-                                </td>
-                            @endif
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+                @endforeach
+            </tbody>
+        </table>
 
 
-        <div class="px-6 pt-4 pb-2">
+
+        {{-- <div class="px-6 pt-4 pb-2">
             {{ $dataPelanggaran->appends(request()->query())->links() }}
-        </div>
+        </div> --}}
 
     </div>
 
@@ -208,24 +228,18 @@
         </div>
     @endforeach
 
+    {{-- js search table and sortir from flowbite datatables --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('table-search');
-            const rows = document.querySelectorAll('#pelanggaranTable tbody tr');
-
-            searchInput.addEventListener('input', function() {
-                const keyword = this.value.toLowerCase();
-
-                rows.forEach(row => {
-                    const rowText = row.innerText.toLowerCase();
-
-                    if (rowText.includes(keyword)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+        if (document.getElementById("search-table") && typeof simpleDatatables.DataTable !== 'undefined') {
+            const dataTable = new simpleDatatables.DataTable("#search-table", {
+                searchable: true,
+                sortable: true, // enable or disable sorting
+                locale: "en-US", // set the locale for sorting
+                numeric: true, // enable or disable numeric sorting
+                string: true,
+                caseFirst: "false", // set the case first for sorting (upper, lower)
+                ignorePunctuation: true, // enable or disable punctuation sorting
             });
-        });
+        }
     </script>
 @endsection

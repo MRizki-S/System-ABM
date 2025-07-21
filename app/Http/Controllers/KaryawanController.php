@@ -16,7 +16,7 @@ class KaryawanController extends Controller
      */
     public function index(Request $request)
     {
-        $dataKaryawan = User::paginate(10);
+        $dataKaryawan = User::all();
 
         // $search = $request->query('search');
         // $filterDevisi = $request->query('devisi');

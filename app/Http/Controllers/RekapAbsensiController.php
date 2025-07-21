@@ -36,7 +36,7 @@ class RekapAbsensiController extends Controller
         // --- Akhir Logika Filter Tanggal ---
 
         // Urutkan data berdasarkan tanggal terbaru (descending)
-        $dataRekapAbsensi = $query->orderBy('tanggal', 'desc')->get();
+        $dataRekapAbsensi = $query->orderBy('created_at', 'desc')->get();
 
         $namaBulan = Carbon::now()->locale('id')->translatedFormat('F Y'); // contoh: Juli 2025
 

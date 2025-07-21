@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->date('tanggal');
-            $table->enum('jenis', ['    ', 'check_out', 'sakit', 'izin']);
+            $table->enum('jenis', ['check_in', 'check_out', 'sakit', 'izin']);
             $table->text('keterangan')->nullable();
             $table->enum('status_checkout', ['user check out', 'user tidak check out'])->default('user tidak check out');
             $table->time('waktu_masuk')->nullable();

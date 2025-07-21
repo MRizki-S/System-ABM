@@ -10,23 +10,6 @@ use Illuminate\Support\Facades\Session;
 
 class PelanggaranController extends Controller
 {
-    // public function index()
-    // {
-    //     // hanya tampil pelanggaran user yang login ketika yang login bukan superadmin & hrd
-    //     if (Auth::user()->role !== 'superadmin' && Auth::user()->role !== 'hrd') {
-    //         $dataPelanggaran = Punishment::with(['absensi', 'user.devisi'])
-    //             ->where('user_id', auth()->id())
-    //             ->orderBy('created_at', 'desc')
-    //             ->paginate(10);
-    //         return view('Pelanggaran.indexPelanggaran', compact('dataPelanggaran'));
-    //     } else {
-    //         // Logic to display violations
-    //         $dataPelanggaran = Punishment::with(['absensi', 'user.devisi'])
-    //             ->orderBy('created_at', 'desc')
-    //             ->paginate(10);
-    //         return view('Pelanggaran.indexPelanggaran', compact('dataPelanggaran'));
-    //     }
-    // }
     public function index(Request $request)
     {
         $query = Punishment::with(['absensi', 'user.devisi']);
@@ -57,7 +40,7 @@ class PelanggaranController extends Controller
             $query->where('user_id', auth()->id());
         }
 
-        $dataPelanggaran = $query->orderBy('created_at', 'desc')->paginate(10);
+        $dataPelanggaran = $query->orderBy('created_at', 'desc')->get();
 
         return view('Pelanggaran.indexPelanggaran', compact('dataPelanggaran', 'selectedDate'));
     }
