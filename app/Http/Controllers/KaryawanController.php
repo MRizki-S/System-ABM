@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\JamKerjaDevisi;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
@@ -150,6 +151,7 @@ class KaryawanController extends Controller
         $user = User::findOrFail($id);
         // dd($user);
         $deleteUser = $user->delete();
+        // dd($deleteUser);
         if (!$deleteUser) {
             Session::flash('error', 'Oops! 😓 Ada yang salah saat menghapus karyawan. Coba lagi sebentar, ya!');
             return redirect()->back();
