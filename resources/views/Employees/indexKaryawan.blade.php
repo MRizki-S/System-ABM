@@ -237,7 +237,7 @@
             });
         }
     </script>
-
+    
     {{-- script delete data --}}
     <script>
         function openDeleteModal(id) {

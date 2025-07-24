@@ -53,7 +53,7 @@ class AbsensiController extends Controller
 
         if ($menitTerlambat >= 46) {
             $persen = 1.0; // 100%
-        } elseif ($menitTerlambat >= 16) {
+        } elseif ($menitTerlambat >= 26) {
             $persen = 0.5; // 50%
         } else {
             $persen = 0.15; // 15%
