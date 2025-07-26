@@ -51,8 +51,9 @@ class DashboardController extends Controller
 
         $bulanNow = Carbon::now()->startOfMonth(); // ambil awal bulan ini
 
-        $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
-        $endOfMonth = $bulanNow->copy()->day(25);
+        // $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+        $startOfMonth = $bulanNow->copy()->startOfDay(); // start bulan ini
+        $endOfMonth = $bulanNow->copy()->day(30);
 
         // Query absensi user login hanya untuk bulan ini
         $dataRekapAbsensi = Absensi::with(['punishment', 'user.devisi'])

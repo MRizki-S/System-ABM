@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Absensi;
+use App\Models\Punishment;
 use Illuminate\Http\Request;
 use App\Exports\AbsensiExport;
-use App\Models\Punishment;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RekapAbsensiController extends Controller
@@ -17,31 +18,56 @@ class RekapAbsensiController extends Controller
         // Mulai query Absensi dengan eager loading relasi yang dibutuhkan
         $query = Absensi::with(['punishment', 'user.devisi']);
 
-        // --- Logika Filter Tanggal ---
-        $selectedDate = null; // Default: tidak ada tanggal yang dipilih
+        // Inisialisasi default variabel
+        $selectedDate = null;
+        $namaBulan = null;
+        $startOfMonth = null;
+        $endOfMonth = null;
 
         if ($request->has('tanggal_filter') && !empty($request->tanggal_filter)) {
             // Jika filter tanggal ada, gunakan tanggal tersebut
             $filterDate = Carbon::parse($request->tanggal_filter)->toDateString();
             $query->whereDate('tanggal', $filterDate);
             $selectedDate = $request->tanggal_filter;
+
+            // Tentukan nama bulan dari tanggal yang difilter
+            $namaBulan = Carbon::parse($filterDate)->locale('id')->translatedFormat('F Y');
         } else {
-            $bulanNow = Carbon::now()->startOfMonth(); // ambil awal bulan ini
+            // Dapatkan tanggal hari ini
+            $today = Carbon::now();
 
-            $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
-            $endOfMonth = $bulanNow->copy()->day(25); // 25 bulan sekarang
+            // if ($today->day <= 25) {
+                // Jika masih tanggal 25 ke bawah: ambil dari 26 bulan sebelumnya sampai 25 bulan ini
+                $startOfMonth = $today->copy()->subMonth()->day(1);
+                $endOfMonth = $today->copy()->day(30);
+                $namaBulan = $today->locale('id')->translatedFormat('F Y');
+            // } else {
+            //     // Jika sudah lewat tanggal 25: ambil dari 26 bulan ini sampai 25 bulan depan
+            //     $startOfMonth = $today->copy()->day(26);
+            //     $endOfMonth = $today->copy()->addMonth()->day(25);
 
+            //     $namaBulan = $today->copy()->addMonth()->locale('id')->translatedFormat('F Y');
+            // }
+
+
+            // dd($startOfMonth->toDateString(), $endOfMonth->toDateString(), $namaBulan);
+            // Terapkan filter range tanggal
             $query->whereBetween('tanggal', [$startOfMonth, $endOfMonth]);
         }
-        // --- Akhir Logika Filter Tanggal ---
 
-        // Urutkan data berdasarkan tanggal terbaru (descending)
         $dataRekapAbsensi = $query->orderBy('created_at', 'desc')->get();
+        // Urutkan data berdasarkan tanggal terbaru (descending)
+        // dd($dataRekapAbsensi);
 
-        $namaBulan = Carbon::now()->locale('id')->translatedFormat('F Y'); // contoh: Juli 2025
-
-        return view('RekapAbsensi.indexRekapAbsensi', compact('dataRekapAbsensi', 'selectedDate', 'namaBulan'));
+        return view('RekapAbsensi.indexRekapAbsensi', compact(
+            'dataRekapAbsensi',
+            'selectedDate',
+            'namaBulan',
+            'startOfMonth',
+            'endOfMonth'
+        ));
     }
+
 
     // expor to excel
     public function exportExcel(Request $request)

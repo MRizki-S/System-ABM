@@ -27,8 +27,9 @@ class PelanggaranController extends Controller
         } else {
             $bulanNow = Carbon::now()->startOfMonth(); // ambil awal bulan ini
 
-            $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
-            $endOfMonth = $bulanNow->copy()->day(25); // 25 bulan sekarang
+            // $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
+            $startOfMonth = $bulanNow->copy()->startOfDay(); // start bulan ini
+            $endOfMonth = $bulanNow->copy()->day(30); // 25 bulan sekarang
 
             $query->whereHas('absensi', function ($q) use ($startOfMonth, $endOfMonth) {
                 $q->whereBetween('tanggal', [$startOfMonth, $endOfMonth]);

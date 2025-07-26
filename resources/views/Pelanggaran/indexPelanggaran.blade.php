@@ -11,9 +11,12 @@
 
     <h3 class="text-3xl font-bold text-gray-800 mb-0">Pelanggaran</h3>
     <p class="text-sm text-gray-400 mb-4 italic">
-        *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }}
-        {{ $startOfMonth->translatedFormat('F') }}
-        - {{ $endOfMonth->format('d') }} {{ $endOfMonth->translatedFormat('F') }}
+        *Default menampilkan pelanggaran pada bulan {{$bulanNow->translatedFormat('F Y')}}
+        {{-- *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }} --}}
+        {{-- sampai tanggal {{ $endOfMonth->format('d') }} --}}
+        {{-- *Default Menampilkan pelanggaran dari tanggal {{ $startOfMonth->format('d') }} --}}
+        {{-- {{ $startOfMonth->translatedFormat('F') }}
+        - {{ $endOfMonth->format('d') }} {{ $endOfMonth->translatedFormat('F') }} --}}
     </p>
     <a href="/pelanggaran" class="inline-block text-blue-600 border-b border-gray-300">Pelanggaran / </a>
 
