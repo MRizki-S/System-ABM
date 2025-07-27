@@ -11,7 +11,7 @@
 
         <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
             {{-- Reset Gaji & tambah --}}
-            <div class="md:mt-2 flex justify-end w-full bg-amber-200 gap-2">
+            <div class="md:mt-2 flex justify-end w-full bg--200 gap-2">
                 <a href="#" data-modal-target="popup-modal-resetGajiKaryawan"
                     data-modal-toggle="popup-modal-resetGajiKaryawan"
                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-800 focus:ring-4 focus:ring-red-300">
@@ -237,7 +237,7 @@
             });
         }
     </script>
-    
+
     {{-- script delete data --}}
     <script>
         function openDeleteModal(id) {
