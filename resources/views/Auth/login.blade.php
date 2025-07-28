@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Login Page</title>
     {{-- @vite('resources/css/app.css') --}}
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C2THiBka.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-BiWa5OpB.css') }}">
     <script src="{{ asset('build/assets/app-DNxiirP_.js') }}"></script>
 
 
@@ -119,7 +119,7 @@
                     </div>
 
                     <button
-                        class="w-full py-2 rounded-lg text-white font-semibold transition duration-200 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-indigo-600 hover:to-blue-600"
+                        class="w-full py-2 rounded-lg text-white font-semibold transition duration-200 bg-gradient-to-r bg-blue-600"
                         type="submit">
                         Log in
                     </button>

@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Halaman Tidak Ditemukan - 404</title>
     {{-- @vite('resources/css/app.css') --}}
-    <link rel="stylesheet" href="{{ asset('build/assets/app-C2THiBka.css') }}">
+    <link rel="stylesheet" href="{{ asset('build/assets/app-BiWa5OpB.css') }}">
 </head>
 
 <body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 h-screen flex items-center justify-center">
