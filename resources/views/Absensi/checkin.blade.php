@@ -14,7 +14,7 @@
                     <label for="tanggal" class="block mb-2 text-sm font-medium text-gray-900">Tanggal</label>
                     <input type="date" id="tanggal" name="tanggal"
                         class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        placeholder="" required value="" readonly />
+                        placeholder="" required  value="{{ now('Asia/Jakarta')->toDateString() }}" readonly />
                 </div>
 
                 <!-- Waktu Masuk -->
@@ -100,7 +100,8 @@
             const waktu = `${jam}:${menit}`;
 
             // Set nilai ke input
-            document.getElementById('tanggal').value = tanggal;
+            console.log('Tanggal:', tanggal, 'Waktu:', waktu);
+            // document.getElementById('tanggal').value = tanggal;
             document.getElementById('waktu_masuk').value = waktu;
         });
     </script>
