@@ -53,7 +53,7 @@ class DashboardController extends Controller
 
         // $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
         $startOfMonth = $bulanNow->copy()->startOfDay(); // start bulan ini
-        $endOfMonth = $bulanNow->copy()->day(30);
+        $endOfMonth = $bulanNow->copy()->endOfDay();
 
         // Query absensi user login hanya untuk bulan ini
         $dataRekapAbsensi = Absensi::with(['punishment', 'user.devisi'])
