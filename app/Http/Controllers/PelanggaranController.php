@@ -29,7 +29,7 @@ class PelanggaranController extends Controller
 
             // $startOfMonth = $bulanNow->copy()->subMonth()->day(26); // 26 bulan sebelumnya
             $startOfMonth = $bulanNow->copy()->startOfDay(); // start bulan ini
-            $endOfMonth = $bulanNow->copy()->day(30); // 25 bulan sekarang
+            $endOfMonth = $bulanNow->copy()->endOfMonth()->endOfDay(); // 25 bulan sekarang
 
             $query->whereHas('absensi', function ($q) use ($startOfMonth, $endOfMonth) {
                 $q->whereBetween('tanggal', [$startOfMonth, $endOfMonth]);
