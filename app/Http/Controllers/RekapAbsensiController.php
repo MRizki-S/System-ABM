@@ -38,7 +38,7 @@ class RekapAbsensiController extends Controller
 
             // if ($today->day <= 25) {
                 // Jika masih tanggal 25 ke bawah: ambil dari 26 bulan sebelumnya sampai 25 bulan ini
-                $startOfMonth = $today->copy()->subMonth()->day(1);
+                $startOfMonth = $today->copy()->startOfDay();
                 $endOfMonth = $today->copy()->endOfMonth()->endOfDay();
                 $namaBulan = $today->locale('id')->translatedFormat('F Y');
             // } else {

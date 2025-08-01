@@ -46,7 +46,7 @@
                 <h2 class="text-3xl font-bold text-blue-700 mb-4 text-center md:text-start lg:text-start xl:text-start">
                     Log in</h2>
                 <p class="text-gray-600 mb-6">Enter your credentials to access your account</p>
-                <form action="/aksiLogin" method="post">
+                <form action="/aksiLogin" method="post" autocomplete="on">
                     @csrf
                     @if (Session::has('success'))
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
@@ -91,7 +91,7 @@
                             <input
                                 class="w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                                 id="username" name="username" placeholder="user1" type="text"
-                                value="{{ old('username') }}" />
+                                value="{{ old('username') }}" autocomplete="username"/>
                             @error('username')
                                 <p class=" text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                             @enderror
@@ -111,7 +111,7 @@
                             <input
                                 class="w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
                                 id="password" name="password" placeholder="••••••••" type="password"
-                                value="{{ old('password') }}" />
+                                value="{{ old('password') }}" autocomplete="current-password"/>
                             @error('password')
                                 <p class=" text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                             @enderror
