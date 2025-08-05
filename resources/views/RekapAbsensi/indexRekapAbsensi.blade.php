@@ -15,13 +15,13 @@
         {{ $selectedDate ? \Carbon\Carbon::parse($selectedDate)->locale('id')->translatedFormat('d F Y') : $namaBulan }}
     </h3>
 
-    @if ($startOfMonth && $endOfMonth)
+    {{-- @if ($startOfMonth && $endOfMonth)
         <p class="text-sm text-gray-400 mb-4 italic">
             *Default menampilkan rekap absensi dari tanggal {{ $startOfMonth->format('d') }}
             {{ $startOfMonth->translatedFormat('F') }}
             - {{ $endOfMonth->format('d') }} {{ $endOfMonth->translatedFormat('F') }}
         </p>
-    @endif
+    @endif --}}
 
     <a href="/rekap-absensi" class="inline-block text-blue-600 border-b border-gray-300 mb-5">Rekap Absensi / </a>
 
