@@ -19,7 +19,7 @@
                     <label for="tanggal" class="block mb-2 text-sm font-medium text-gray-900">Tanggal</label>
                     <input type="date" id="tanggal" name="tanggal"
                         class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
-                        placeholder="" required value="" readonly />
+                        placeholder="" required value="{{ now('Asia/Jakarta')->toDateString() }}" readonly />
                 </div>
 
                 <!-- jenis -->
@@ -61,21 +61,4 @@
             </div>
         @endif
     </form>
-
-
-    <script>
-        window.addEventListener('DOMContentLoaded', function() {
-            // Ambil tanggal sekarang dalam format YYYY-MM-DD
-            const now = new Date();
-            const tanggal = now.toISOString().split('T')[0];
-
-            // Ambil waktu sekarang dalam format HH:MM
-            const jam = now.getHours().toString().padStart(2, '0');
-            const menit = now.getMinutes().toString().padStart(2, '0');
-            const waktu = `${jam}:${menit}`;
-
-            // Set nilai ke input
-            document.getElementById('tanggal').value = tanggal;
-        });
-    </script>
 @endsection
