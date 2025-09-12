@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
 use App\Models\Punishment;
+use App\Services\FonnteMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use App\Services\FonnteMessageService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
 class AbsensiController extends Controller
@@ -27,12 +26,12 @@ class AbsensiController extends Controller
     private function hitungJarakMeter($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371000; // meter
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
+        $dLat        = deg2rad($lat2 - $lat1);
+        $dLon        = deg2rad($lon2 - $lon1);
 
         $a = sin($dLat / 2) * sin($dLat / 2) +
-            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon / 2) * sin($dLon / 2);
+        cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+        sin($dLon / 2) * sin($dLon / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
@@ -62,12 +61,11 @@ class AbsensiController extends Controller
         return floor($potonganMaksimal * $persen);
     }
 
-
     public function checkInView()
     {
         // return view('Absensi.checkin');
         $userId = Auth::id();
-        $today = Carbon::today()->toDateString();
+        $today  = Carbon::today()->toDateString();
 
         $sudahCheckIn = Absensi::where('user_id', $userId)
             ->where('tanggal', $today)
@@ -76,28 +74,28 @@ class AbsensiController extends Controller
 
         // dd($sudahCheckIn);
         return view('Absensi.checkin', [
-            'sudahCheckIn' => $sudahCheckIn
+            'sudahCheckIn' => $sudahCheckIn,
         ]);
     }
     public function checkInAksi(Request $request)
     {
 
         $request->validate([
-            'tanggal' => 'required|date',
+            'tanggal'     => 'required|date',
             'waktu_masuk' => 'required',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude'    => 'required|numeric',
+            'longitude'   => 'required|numeric',
         ]);
-
+        // dd($request->all());
         // ambil user yang sedang login
         $user = Auth::user();
 
         // Lokasi kantor
-        $kantorLat = -8.13915542278884;
+        $kantorLat  = -8.13915542278884;
         $kantorLong = 113.70078301842943;
 
         // Lokasi user saat ini
-        $userLat = $request->latitude;
+        $userLat  = $request->latitude;
         $userLong = $request->longitude;
 
         // Hitung jarak dari kantor (dalam meter)
@@ -110,30 +108,29 @@ class AbsensiController extends Controller
             return redirect()->back();
         }
 
-
         // Simpan absensi
         $absensiCheckin = Absensi::create([
-            'user_id' => Auth::id(),
-            'tanggal' => $request->tanggal,
-            'jenis' => 'check_in',
-            'keterangan' => null,
-            'status_checkout' => 'user tidak check out',
-            'waktu_masuk' => $request->waktu_masuk,
-            'waktu_keluar' => null,
-            'latitude' => $userLat,
-            'longitude' => $userLong,
+            'user_id'          => Auth::id(),
+            'tanggal'          => $request->tanggal,
+            'jenis'            => 'check_in',
+            'keterangan'       => null,
+            'status_checkout'  => 'user tidak check out',
+            'waktu_masuk'      => $request->waktu_masuk,
+            'waktu_keluar'     => null,
+            'latitude'         => $userLat,
+            'longitude'        => $userLong,
             'jangkauan_radius' => round($radius, 2), // simpan jaraknya saja
         ]);
 
-        if (!$absensiCheckin) {
+        if (! $absensiCheckin) {
             Session::flash('error', 'Oops! Terjadi kesalahan saat menyimpan data check-in. Silakan coba lagi. hubungi staff it jika masalah berlanjut.');
             return redirect()->back();
         }
 
-        // validasi keterlambatan
-        // Simulasi input
-        $waktuMasuk = $request->input('waktu_masuk'); // '08:10'
-        $jamKerjaMulai = $user->devisi->jam_mulai;
+                                                            // validasi keterlambatan
+                                                            // Simulasi input
+        $waktuMasuk       = $request->input('waktu_masuk'); // '08:10'
+        $jamKerjaMulai    = $user->devisi->jam_mulai;
         $potonganMaksimal = $user->potongan_keterlambatan;
         // dd($waktuMasuk, $jamKerjaMulai, $potonganMaksimal);
 
@@ -144,10 +141,10 @@ class AbsensiController extends Controller
         // Simpan punishment jika perlu
         if ($potongan > 0) {
             Punishment::create([
-                'user_id' => $user->id,
-                'absensi_id' => $absensiCheckin->id, // contoh
+                'user_id'           => $user->id,
+                'absensi_id'        => $absensiCheckin->id, // contoh
                 'jam_keterlambatan' => $waktuMasuk,
-                'potongan' => $potongan,
+                'potongan'          => $potongan,
             ]);
 
             $user->gaji_total -= $potongan;
@@ -156,9 +153,9 @@ class AbsensiController extends Controller
 
         // --- Bagian PENTING: Kirim Pesan ke Grup WhatsApp ---
         try {
-            // Menggunakan Carbon untuk format tanggal dan waktu yang rapi
+                                                                                                 // Menggunakan Carbon untuk format tanggal dan waktu yang rapi
             $formattedDate = Carbon::parse($absensiCheckin->tanggal)->translatedFormat('d-m-Y'); // Contoh: 30-06-2025
-            $formattedTime = Carbon::parse($absensiCheckin->waktu_masuk)->format('H:i'); // Contoh: 08:30
+            $formattedTime = Carbon::parse($absensiCheckin->waktu_masuk)->format('H:i');         // Contoh: 08:30
 
             // Simple check-in notification message, without extra lines or details
             $pesanNotifikasi = "*" . $user->nama_lengkap . "* hadir pada " . $formattedDate . " " . $formattedTime . ".";
@@ -171,7 +168,6 @@ class AbsensiController extends Controller
         }
         // --- Akhir Bagian WhatsApp ---
 
-
         Session::flash('success', 'Check-in berhasil!');
         return redirect('/absensi/check-in');
     }
@@ -179,7 +175,7 @@ class AbsensiController extends Controller
     public function checkOutView()
     {
         $userId = Auth::id();
-        $today = Carbon::today()->toDateString();
+        $today  = Carbon::today()->toDateString();
 
         $sudahCheckOut = Absensi::where('user_id', $userId)
             ->where('tanggal', $today)
@@ -192,15 +188,15 @@ class AbsensiController extends Controller
     {
         $request->validate([
             'waktu_keluar' => 'required',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude'     => 'required|numeric',
+            'longitude'    => 'required|numeric',
         ]);
 
         $user = Auth::user();
         // dd($user->devisi->jam_selesai);
-        $today = Carbon::today()->toDateString();
+        $today       = Carbon::today()->toDateString();
         $waktuKeluar = Carbon::parse($request->waktu_keluar);
-        $jamSelesai = Carbon::parse($user->devisi->jam_selesai);
+        $jamSelesai  = Carbon::parse($user->devisi->jam_selesai);
 
         if ($waktuKeluar->lt($jamSelesai)) {
             return redirect()->back()->with('error', 'Waktu check-out tidak boleh sebelum jam selesai kerja (' . $jamSelesai->format('H:i') . ').');
@@ -211,16 +207,16 @@ class AbsensiController extends Controller
             ->where('jenis', 'check_in')
             ->first();
 
-        if (!$absensi) {
+        if (! $absensi) {
             return redirect()->back()->with('error', 'Anda belum melakukan check-in hari ini.');
         }
 
         // Lokasi kantor
-        $kantorLat = -8.13915542278884;
+        $kantorLat  = -8.13915542278884;
         $kantorLong = 113.70078301842943;
 
         // Lokasi user saat ini
-        $userLat = $request->latitude;
+        $userLat  = $request->latitude;
         $userLong = $request->longitude;
 
         // Hitung jarak dari kantor (dalam meter)
@@ -234,13 +230,13 @@ class AbsensiController extends Controller
 
         $absensiCheckout = $absensi->update([
             'waktu_keluar'     => $request->waktu_keluar,
-            'jenis' => 'check_out',
+            'jenis'            => 'check_out',
             'status_checkout'  => 'user check out',
             'latitude'         => $request->latitude,
             'longitude'        => $request->longitude,
             'jangkauan_radius' => $radius <= 50 ? true : false, // simpan status jangkauan radius
         ]);
-        if (!$absensiCheckout) {
+        if (! $absensiCheckout) {
             Session::flash('error', 'Oops! Terjadi kesalahan saat menyimpan data check-out. Silakan coba lagi. hubungi staff it jika masalah berlanjut.');
             return redirect()->back();
         }
@@ -248,7 +244,7 @@ class AbsensiController extends Controller
         // --- Bagian PENTING: Kirim Pesan ke Grup WhatsApp ---
         try {
             // Pastikan user memiliki properti 'nama_lengkap'
-            $userName = $user->nama_lengkap;
+            $userName     = $user->nama_lengkap;
             $checkoutTime = Carbon::parse($request->waktu_keluar)->format('H:i');
 
             // Pesan notifikasi untuk check-out
@@ -269,7 +265,7 @@ class AbsensiController extends Controller
     public function absenView()
     {
         $userId = Auth::id();
-        $today = Carbon::now()->toDateString();
+        $today  = Carbon::now()->toDateString();
 
         // Cek apakah user sudah absen hari ini (jenis check_in atau izin/sakit)
         $sudahAbsenHariIni = Absensi::where('user_id', $userId)
@@ -284,36 +280,49 @@ class AbsensiController extends Controller
     {
         // dd($request->all());
         $request->validate([
-            'tanggal' => 'required|date',
-            'jenis' => 'required|in:sakit,izin',
+            'tanggal'    => 'required|date',
+            'jenis'      => 'required|in:sakit,izin',
             'keterangan' => 'required|string|max:40',
         ]);
 
+        // Ambil waktu server untuk tanggal absensi
+        $tanggalAbsen = Carbon::parse($request->tanggal)->toDateString();
+
+        // Cek apakah user sudah punya absensi untuk tanggal ini
+        $sudahAbsen = Absensi::where('user_id', Auth::id())
+            ->where('tanggal', $tanggalAbsen)
+            ->exists();
+
+        if ($sudahAbsen) {
+            Session::flash('error', 'Oops! Anda sudah melakukan absensi hari ini.');
+            return redirect()->back();
+        }
+
         $absensiAbsen = Absensi::create([
-            'user_id' => Auth::id(),
-            'tanggal' => $request->tanggal,
-            'jenis' => $request->jenis,
-            'keterangan' => $request->keterangan,
-            'status_checkout' => 'user tidak check out',
-            'waktu_masuk' => null,
-            'waktu_keluar' => null,
-            'latitude' => null, // Tidak diperlukan untuk jenis absen ini
-            'longitude' => null, // Tidak diperlukan untuk jenis absen ini
+            'user_id'          => Auth::id(),
+            'tanggal'          => $request->tanggal,
+            'jenis'            => $request->jenis,
+            'keterangan'       => $request->keterangan,
+            'status_checkout'  => 'user tidak check out',
+            'waktu_masuk'      => null,
+            'waktu_keluar'     => null,
+            'latitude'         => null,  // Tidak diperlukan untuk jenis absen ini
+            'longitude'        => null,  // Tidak diperlukan untuk jenis absen ini
             'jangkauan_radius' => false, // Tidak diperlukan untuk jenis absen ini
         ]);
 
-        if (!$absensiAbsen) {
+        if (! $absensiAbsen) {
             Session::flash('error', 'Oops! Terjadi kesalahan saat menyimpan data absensi. Silakan coba lagi. hubungi staff it jika masalah berlanjut.');
             return redirect()->back();
         }
 
         // --- Bagian PENTING: Kirim Pesan ke Grup WhatsApp ---
         try {
-            $user = Auth::user();
-            $userName = $user->nama_lengkap; // Ambil nama lengkap user
+            $user          = Auth::user();
+            $userName      = $user->nama_lengkap;                                         // Ambil nama lengkap user
             $formattedDate = Carbon::parse($request->tanggal)->translatedFormat('d-m-Y'); // Format tanggal: 30-06-2025
-            $jenisAbsen = ucfirst($request->jenis); // Sakit atau Izin
-            $keterangan = $request->keterangan;
+            $jenisAbsen    = ucfirst($request->jenis);                                    // Sakit atau Izin
+            $keterangan    = $request->keterangan;
 
             $pesanNotifikasi = "";
 
@@ -321,8 +330,8 @@ class AbsensiController extends Controller
             $pesanNotifikasi .= "*" . $userName . "* tidak dapat hadir dikarenakan *" . $jenisAbsen . "* pada tanggal " . $formattedDate . ".";
             $pesanNotifikasi .= "\n*Keterangan:* " . $keterangan;
 
-            // Panggil service untuk mengirim pesan
-            if (!empty($pesanNotifikasi)) { // Pastikan pesan tidak kosong
+                                            // Panggil service untuk mengirim pesan
+            if (! empty($pesanNotifikasi)) { // Pastikan pesan tidak kosong
                 $this->fonnteMessageService->sendToGroup($pesanNotifikasi);
             }
         } catch (\Throwable $e) {
