@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
+use App\Models\JamKerjaDevisi;
+use App\Models\Perumahaan;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Models\JamKerjaDevisi;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
@@ -37,15 +36,14 @@ class KaryawanController extends Controller
         return view('Employees.indexKaryawan', compact('dataKaryawan'));
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        // get devisi from database
-        $devisi = JamKerjaDevisi::all();
-        return view('Employees.createKaryawan', compact('devisi'));
+        $devisi     = JamKerjaDevisi::all();
+        $perumahaan = Perumahaan::all();
+        return view('Employees.createKaryawan', compact('devisi', 'perumahaan'));
     }
 
     /**
@@ -53,27 +51,26 @@ class KaryawanController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-        // Validate the request data
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username',
-            'password' => 'required|min:8',
-            'nama_lengkap' => 'required|string|max:255',
-            'devisi_id' => 'required|exists:jam_kerja_devisi,id',
-            'role' => 'required',
+            'username'               => 'required|string|max:255|unique:users,username',
+            'password'               => 'required|min:8',
+            'nama_lengkap'           => 'required|string|max:255',
+            'devisi_id'              => 'required|exists:jam_kerja_devisi,id',
+            'perumahaan_id'          => 'required|exists:perumahaan,id',
+            'role'                   => 'required',
             'potongan_keterlambatan' => 'nullable|numeric|min:1',
-            'gaji_pokok' => 'nullable|numeric|min:1',
+            'gaji_pokok'             => 'nullable|numeric|min:1',
         ]);
-        // dd($request->all());
 
-        $request['gaji_total'] = $request->gaji_pokok; // Set gaji_total to gaji_pokok by default
+        $request['gaji_total'] = $request->gaji_pokok;
+
         $createUser = User::create($request->all());
 
         if ($createUser) {
             Session::flash('success', 'Karyawan baru berhasil ditambahkan!');
             return redirect('/karyawan');
         } else {
-            Session::flash('error',  'Oops! 😓 Ada yang salah saat menambahkan karyawan. Coba lagi sebentar, ya!');
+            Session::flash('error', 'Oops! 😓 Ada yang salah saat menambahkan karyawan. Coba lagi sebentar, ya!');
             return redirect('/karyawan');
         }
     }
@@ -84,7 +81,7 @@ class KaryawanController extends Controller
     public function show(string $id)
     {
         $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
+        $endOfMonth   = Carbon::now()->endOfMonth();
 
         $detailKaryawan = User::with([
             'devisi',
@@ -94,9 +91,8 @@ class KaryawanController extends Controller
                         $subQuery->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')]);
                     })
                     ->orderBy('created_at', 'desc');
-            }
+            },
         ])->findOrFail($id);
-
 
         // dd($detailKaryawan);
 
@@ -109,7 +105,7 @@ class KaryawanController extends Controller
     public function edit(string $id)
     {
         $editKaryawan = User::findOrFail($id);
-        $devisi = JamKerjaDevisi::all();
+        $devisi       = JamKerjaDevisi::all();
         // dd($editKaryawan);
         return view('Employees.editKaryawan', compact('editKaryawan', 'devisi'));
     }
@@ -121,20 +117,20 @@ class KaryawanController extends Controller
     {
         // Validate the request data
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'nama_lengkap' => 'required|string|max:255',
-            'devisi_id' => 'required|exists:jam_kerja_devisi,id',
-            'role' => 'required',
+            'username'               => 'required|string|max:255|unique:users,username,' . $id,
+            'nama_lengkap'           => 'required|string|max:255',
+            'devisi_id'              => 'required|exists:jam_kerja_devisi,id',
+            'role'                   => 'required',
             'potongan_keterlambatan' => 'nullable|numeric|min:1',
-            'gaji_pokok' => 'nullable|numeric|min:1',
+            'gaji_pokok'             => 'nullable|numeric|min:1',
         ]);
-        // dd($request->all());
+                                                       // dd($request->all());
         $request['gaji_total'] = $request->gaji_pokok; // Set gaji_total to gaji_pokok by default
 
-        $user = User::findOrFail($id);
+        $user       = User::findOrFail($id);
         $updateUser = $user->update($request->all());
 
-        if (!$updateUser) {
+        if (! $updateUser) {
             Session::flash('error', 'Oops! 😓 Ada yang salah saat memperbarui karyawan. Coba lagi sebentar, ya!');
             return redirect()->back();
         }
@@ -152,7 +148,7 @@ class KaryawanController extends Controller
         // dd($user);
         $deleteUser = $user->delete();
         // dd($deleteUser);
-        if (!$deleteUser) {
+        if (! $deleteUser) {
             Session::flash('error', 'Oops! 😓 Ada yang salah saat menghapus karyawan. Coba lagi sebentar, ya!');
             return redirect()->back();
         }
@@ -168,7 +164,7 @@ class KaryawanController extends Controller
             // Menggunakan chunk() untuk efisiensi pada banyak data user
             User::chunk(500, function ($users) {
                 foreach ($users as $user) {
-                    if (!is_null($user->gaji_pokok)) { // Pastikan gaji_pokok tidak kosong
+                    if (! is_null($user->gaji_pokok)) { // Pastikan gaji_pokok tidak kosong
                         $user->gaji_total = $user->gaji_pokok;
                         $user->save();
                     }
@@ -185,7 +181,7 @@ class KaryawanController extends Controller
             // Catat error jika terjadi masalah
             Log::error('Gagal mereset gaji total semua karyawan: ' . $e->getMessage(), [
                 'user_id' => auth()->id() ?? 'Guest', // Tangani jika user tidak terautentikasi
-                'trace' => $e->getTraceAsString()
+                'trace'   => $e->getTraceAsString(),
             ]);
 
             // Beri notifikasi error ke user

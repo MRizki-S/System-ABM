@@ -241,6 +241,18 @@
                     @csrf
                     <div class="grid gap-4 mb-4 grid-cols-2">
                         <div class="col-span-2">
+                            <label for="perumahaan_id" class="block mb-2 text-sm font-medium text-gray-900 ">Pilih Perumahaan</label>
+                            <select id="perumahaan_id" name="perumahaan_id"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                required>
+                                <option selected="" value="">Pilih Perumahaan</option>
+                                @foreach ($perumahaan as $item)
+                                    <option value="{{$item->id}}">{{$item->nama}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-span-2">
                             <label for="category" class="block mb-2 text-sm font-medium text-gray-900 ">Category</label>
                             <select id="category" name="category"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"

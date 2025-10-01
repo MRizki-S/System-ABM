@@ -1,14 +1,14 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Absensi;
+use App\Models\Perumahaan;
 use App\Models\Punishment;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exports\AbsensiExport;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RekapAbsensiController extends Controller
@@ -20,11 +20,11 @@ class RekapAbsensiController extends Controller
 
         // Inisialisasi default variabel
         $selectedDate = null;
-        $namaBulan = null;
+        $namaBulan    = null;
         $startOfMonth = null;
-        $endOfMonth = null;
+        $endOfMonth   = null;
 
-        if ($request->has('tanggal_filter') && !empty($request->tanggal_filter)) {
+        if ($request->has('tanggal_filter') && ! empty($request->tanggal_filter)) {
             // Jika filter tanggal ada, gunakan tanggal tersebut
             $filterDate = Carbon::parse($request->tanggal_filter)->toDateString();
             $query->whereDate('tanggal', $filterDate);
@@ -37,10 +37,10 @@ class RekapAbsensiController extends Controller
             $today = Carbon::now();
 
             // if ($today->day <= 25) {
-                // Jika masih tanggal 25 ke bawah: ambil dari 26 bulan sebelumnya sampai 25 bulan ini
-                $startOfMonth = $today->copy()->startOfDay();
-                $endOfMonth = $today->copy()->endOfMonth()->endOfDay();
-                $namaBulan = $today->locale('id')->translatedFormat('F Y');
+            // Jika masih tanggal 25 ke bawah: ambil dari 26 bulan sebelumnya sampai 25 bulan ini
+            $startOfMonth = $today->copy()->startOfDay();
+            $endOfMonth   = $today->copy()->endOfMonth()->endOfDay();
+            $namaBulan    = $today->locale('id')->translatedFormat('F Y');
             // } else {
             //     // Jika sudah lewat tanggal 25: ambil dari 26 bulan ini sampai 25 bulan depan
             //     $startOfMonth = $today->copy()->day(26);
@@ -48,7 +48,6 @@ class RekapAbsensiController extends Controller
 
             //     $namaBulan = $today->copy()->addMonth()->locale('id')->translatedFormat('F Y');
             // }
-
 
             // dd($startOfMonth->toDateString(), $endOfMonth->toDateString(), $namaBulan);
             // Terapkan filter range tanggal
@@ -58,9 +57,11 @@ class RekapAbsensiController extends Controller
         $dataRekapAbsensi = $query->orderBy('created_at', 'desc')->get();
         // Urutkan data berdasarkan tanggal terbaru (descending)
         // dd($dataRekapAbsensi);
-
+        $perumahaan = Perumahaan::all();
+        // dd($perumahaan);
         return view('RekapAbsensi.indexRekapAbsensi', compact(
             'dataRekapAbsensi',
+            'perumahaan',
             'selectedDate',
             'namaBulan',
             'startOfMonth',
@@ -68,32 +69,40 @@ class RekapAbsensiController extends Controller
         ));
     }
 
-
     // expor to excel
     public function exportExcel(Request $request)
     {
-        // Validasi input sesuai kategori
+        // Validasi input
         $request->validate([
-            'category' => 'required|in:hari,bulan',
-            'tanggalHari' => 'nullable|required_if:category,hari|date',
-            'bulan' => 'nullable|required_if:category,bulan|date_format:Y-m',
+            'category'      => 'required|in:hari,bulan',
+            'tanggalHari'   => 'nullable|required_if:category,hari|date',
+            'bulan'         => 'nullable|required_if:category,bulan|date_format:Y-m',
+            'perumahaan_id' => 'required|exists:perumahaan,id', // tambahkan validasi
         ]);
 
-        $category = $request->input('category');
+        $category     = $request->input('category');
+        $perumahaanId = $request->perumahaan_id;
+
+        // Ambil nama perumahaan untuk ditaruh di filename
+        $perumahaan         = Perumahaan::find($perumahaanId);
+        $namaPerumahaanSlug = Str::slug($perumahaan->nama, '-'); // jadi lowercase-dengan-strip
+
         $filename = '';
-        $data = [];
-        $view = '';
+        $rekap    = [];
+        $view     = '';
 
         if ($category === 'hari') {
-            $tanggal = Carbon::parse($request->tanggalHari)->format('Y-m-d');
+            $tanggal       = Carbon::parse($request->tanggalHari)->format('Y-m-d');
             $carbonTanggal = Carbon::parse($tanggal);
-            $tanggalList = [$tanggal];
+            $tanggalList   = [$tanggal];
 
-            $users = User::with('devisi')->get();
-            $rekap = [];
+            $users = User::with('devisi')
+                ->where('perumahaan_id', $perumahaanId)
+                ->get();
 
             foreach ($users as $user) {
                 $data = Absensi::with('punishment')
+                    ->where('perumahaan_id', $perumahaanId)
                     ->where('user_id', $user->id)
                     ->whereDate('tanggal', $tanggal)
                     ->first();
@@ -124,47 +133,47 @@ class RekapAbsensiController extends Controller
                 }
 
                 $rekap[] = [
-                    'nama' => $user->nama_lengkap,
-                    'divisi' => $user->devisi->nama_devisi ?? '-',
-                    'absensi' => [$tanggal => $absen],
-                    'hadir' => $hadir,
-                    'izin' => $izin,
-                    'sakit' => $sakit,
+                    'nama'     => $user->nama_lengkap,
+                    'divisi'   => $user->devisi->nama_devisi ?? '-',
+                    'absensi'  => [$tanggal => $absen],
+                    'hadir'    => $hadir,
+                    'izin'     => $izin,
+                    'sakit'    => $sakit,
                     'potongan' => (int) $potongan,
                 ];
             }
-            // dd($rekap);
 
-            $filename = 'rekap-harian-' . $tanggal . '.xlsx';
-            $view = 'export.rekap-harian';
+            $filename = 'rekap-harian-' . $namaPerumahaanSlug . '-' . $carbonTanggal->format('d-m-Y') . '.xlsx';
+            $view     = 'export.rekap-harian';
 
             return Excel::download(new AbsensiExport([
-                'rekap' => $rekap,
+                'rekap'       => $rekap,
                 'tanggalList' => $tanggalList,
-                'tanggal' => $carbonTanggal, // for display
+                'tanggal'     => $carbonTanggal,
             ], $view), $filename);
         } elseif ($category === 'bulan') {
             $bulan = Carbon::createFromFormat('Y-m', $request->bulan);
-            $start = $bulan->copy()->subMonth()->day(26); // 26 bulan sebelumnya
-            $end = $bulan->copy()->day(25); // 25 bulan yg dipilih
+            $start = $bulan->copy()->subMonth()->day(26);
+            $end   = $bulan->copy()->day(25);
 
-            // Buat daftar tanggal sebulan
             $tanggalList = [];
             for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
                 $tanggalList[] = $date->format('Y-m-d');
             }
 
-            $users = User::with('devisi')->get();
-            $rekap = [];
+            $users = User::with('devisi')
+                ->where('perumahaan_id', $perumahaanId)
+                ->get();
 
             foreach ($users as $user) {
                 $absensi = Absensi::with('punishment')
+                    ->where('perumahaan_id', $perumahaanId)
                     ->where('user_id', $user->id)
                     ->whereBetween('tanggal', [$start->format('Y-m-d'), $end->format('Y-m-d')])
                     ->get();
 
                 $absenPerTanggal = [];
-                $hadir = $izin = $sakit = 0;
+                $hadir           = $izin           = $sakit           = 0;
 
                 foreach ($tanggalList as $tgl) {
                     $data = $absensi->first(function ($absen) use ($tgl) {
@@ -172,7 +181,6 @@ class RekapAbsensiController extends Controller
                     });
 
                     if ($data) {
-                        // Hitung hadir, izin, sakit
                         if ($data->jenis === 'izin') {
                             $izin++;
                         } elseif ($data->jenis === 'sakit') {
@@ -181,12 +189,10 @@ class RekapAbsensiController extends Controller
                             $hadir++;
                         }
 
-                        // Ambil data waktu masuk & keluar
-                        $jamMasuk = $data->waktu_masuk ?? '';
+                        $jamMasuk  = $data->waktu_masuk ?? '';
                         $jamKeluar = $data->waktu_keluar ?? '';
+                        $status    = '';
 
-                        // Status tambahan: izin / sakit / check-out
-                        $status = '';
                         if ($data->jenis === 'izin') {
                             $status = 'Izin - ' . ($data->keterangan ?? '');
                         } elseif ($data->jenis === 'sakit') {
@@ -195,13 +201,11 @@ class RekapAbsensiController extends Controller
                             $status = $data->status_checkout ?? '';
                         }
 
-                        // Tambahkan keterangan jika terlambat
                         $terlambat = ($data->punishment && $data->punishment->potongan > 0) ? ' - Terlambat' : '';
 
-                        // Format tampilan absen
-                        if ($jamMasuk && !$jamKeluar) {
+                        if ($jamMasuk && ! $jamKeluar) {
                             $absenPerTanggal[$tgl] = "$jamMasuk - ($status$terlambat)";
-                        } elseif (!$jamMasuk && !$jamKeluar) {
+                        } elseif (! $jamMasuk && ! $jamKeluar) {
                             $absenPerTanggal[$tgl] = "($status$terlambat)";
                         } else {
                             $absenPerTanggal[$tgl] = "$jamMasuk - $jamKeluar ($status$terlambat)";
@@ -211,45 +215,39 @@ class RekapAbsensiController extends Controller
                     }
                 }
 
-                // Hitung total potongan
                 $potongan = Punishment::where('user_id', $user->id)
-                    ->whereHas('absensi', function ($query) use ($start, $end) {
-                        $query->whereBetween('tanggal', [$start->format('Y-m-d'), $end->format('Y-m-d')]);
+                    ->whereHas('absensi', function ($query) use ($start, $end, $perumahaanId) {
+                        $query->where('perumahaan_id', $perumahaanId)
+                            ->whereBetween('tanggal', [$start->format('Y-m-d'), $end->format('Y-m-d')]);
                     })
                     ->sum('potongan');
 
-                // Ambil gaji pokok dan gaji akhir
-                $gajiPokok = $user->gaji_pokok;
-                $gajiAkhir = $user->gaji_total;
-
                 $rekap[] = [
-                    'nama' => $user->nama_lengkap,
-                    'divisi' => $user->devisi->nama_devisi ?? '-',
-                    'absensi' => $absenPerTanggal,
-                    'hadir' => $hadir,
-                    'izin' => $izin,
-                    'sakit' => $sakit,
-                    'gaji_pokok' => (int) $gajiPokok,
-                    'potongan' => (int) $potongan,
-                    'gaji_akhir' => (int) $gajiAkhir,
+                    'nama'       => $user->nama_lengkap,
+                    'divisi'     => $user->devisi->nama_devisi ?? '-',
+                    'absensi'    => $absenPerTanggal,
+                    'hadir'      => $hadir,
+                    'izin'       => $izin,
+                    'sakit'      => $sakit,
+                    'gaji_pokok' => (int) $user->gaji_pokok,
+                    'potongan'   => (int) $potongan,
+                    'gaji_akhir' => (int) $user->gaji_total,
                 ];
             }
-            // dd($rekap);
 
             $bulanTerpilih = Carbon::createFromFormat('Y-m', $request->bulan);
-            $filename = 'rekap-bulanan-' . $bulanTerpilih->translatedFormat('F-Y') . '.xlsx';
-            $view = 'export.rekap-bulanan';
-
-            // dd($bulanTerpilih);
+            $filename      = 'rekap-bulanan-' . strtolower($bulanTerpilih->translatedFormat('F-Y')) . '-' . $namaPerumahaanSlug . '.xlsx';
+            $view          = 'export.rekap-bulanan';
 
             return Excel::download(
                 new AbsensiExport([
-                    'rekap' => $rekap,
-                    'bulan' => $bulanTerpilih,
+                    'rekap'       => $rekap,
+                    'bulan'       => $bulanTerpilih,
                     'tanggalList' => $tanggalList,
                 ], $view),
                 $filename
             );
         }
     }
+
 }

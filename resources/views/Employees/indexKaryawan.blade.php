@@ -54,6 +54,16 @@
                             </svg>
                         </span>
                     </th>
+                    <th scope="col" class="px-6 py-3">
+                        <span class="flex items-center">
+                            Perumahaan
+                            <svg class="w-4 h-4 ms-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="m8 15 4 4 4-4m0-6-4-4-4 4" />
+                            </svg>
+                        </span>
+                    </th>
                     <th scope="col" class="px-6 py-3">Role</th>
                     <th scope="col" class="px-6 py-3">
                         <span class="flex items-center">
@@ -88,6 +98,21 @@
                             {{ $item->nama_lengkap }}
                         </td>
                         <td class="px-6 py-4">
+                            @php
+                                $nama = $item->perumahaan->nama ?? '-';
+                                $badgeClass = match ($nama) {
+                                    'Asa Dreamland' => 'bg-green-100 text-green-800',
+                                    'Lembah Hijau Residence' => 'bg-blue-100 text-blue-800',
+                                    default => 'bg-gray-100 text-gray-800',
+                                };
+                            @endphp
+
+                            <span class="px-3 py-1 text-xs font-medium rounded-full {{ $badgeClass }}">
+                                {{ $nama }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4">
                             {{ $item->role }}
                         </td>
                         @php
@@ -115,7 +140,7 @@
                         </td>
                         <td class="px-6 py-4 text-center space-x-3">
                             <a href="{{ route('karyawan.show', $item->id) }}"
-                            class="font-medium text-blue-600 hover:underline">Detail</a>
+                                class="font-medium text-blue-600 hover:underline">Detail</a>
                             <a href="{{ route('karyawan.edit', $item->id) }}"
                                 class="font-medium text-yellow-600 hover:underline">Edit</a>
                             <a href="#" onclick="openDeleteModal({{ $item->id }}, '{{ $item->username }}')"

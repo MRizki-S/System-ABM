@@ -1,14 +1,14 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Absensi;
-use App\Models\Punishment;
 use App\Models\JamKerjaDevisi;
-use Illuminate\Notifications\Notifiable;
+use App\Models\Perumahaan;
+use App\Models\Punishment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
@@ -29,6 +29,7 @@ class User extends Authenticatable
         'gaji_total',
         'potongan_keterlambatan',
         'devisi_id',
+        'perumahaan_id',
     ];
 
     /**
@@ -50,12 +51,16 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
-
     // relasi
+
+    public function perumahaan()
+    {
+        return $this->belongsTo(Perumahaan::class, 'perumahaan_id');
+    }
 
     public function devisi()
     {

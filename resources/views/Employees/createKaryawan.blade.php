@@ -9,6 +9,25 @@
 
     <form class=" w-full bg-amber-300a p-6 rounded-lg mt-5 shadow" action="{{ route('karyawan.store') }}" method="POST">
         @csrf
+        <!-- perumahaan_id -->
+        <div class="w-full mb-4">
+            <label for="perumahaan_id" class="block mb-2 text-sm font-medium text-gray-900">Perumahaan</label>
+            <select id="perumahaan_id" name="perumahaan_id" required
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                <option value="">Pilih Perumahaan</option>
+                @foreach ($perumahaan as $p)
+                    <option value="{{ $p->id }}" {{ old('perumahaan_id') == $p->id ? 'selected' : '' }}>
+                        {{ $p->nama }}
+                    </option>
+                @endforeach
+            </select>
+            @error('perumahaan_id')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+
         <div class="flex flex-col sm:flex-row sm:gap-4">
             <!-- Username -->
             <div class="mb-5 w-full">
@@ -95,7 +114,8 @@
             <div class="w-full">
                 <label for="devisi_id" class="block mb-2 text-sm font-medium text-gray-900 ">Devisi</label>
                 <select id="devisi_id" name="devisi_id"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    required>
                     <option value="">Pilih Devisi</option>
                     @foreach ($devisi as $devisiItem)
                         <option value="{{ $devisiItem->id }}" data-jam-mulai="{{ $devisiItem->jam_mulai }}"
