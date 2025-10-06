@@ -163,19 +163,19 @@ class AbsensiController extends Controller
         }
 
         // Kirim notifikasi WhatsApp ke group perumahaan
-        // try {
-        //     $formattedDate = Carbon::parse($absensiCheckin->tanggal)->translatedFormat('d-m-Y');
-        //     $formattedTime = Carbon::parse($absensiCheckin->waktu_masuk)->format('H:i');
+        try {
+            $formattedDate = Carbon::parse($absensiCheckin->tanggal)->translatedFormat('d-m-Y');
+            $formattedTime = Carbon::parse($absensiCheckin->waktu_masuk)->format('H:i');
 
-        //     $pesanNotifikasi = "*" . $user->nama_lengkap . "* hadir pada " . $formattedDate . " " . $formattedTime . ".";
+            $pesanNotifikasi = "*" . $user->nama_lengkap . "* hadir pada " . $formattedDate . " " . $formattedTime . ".";
 
-        //     // buat service dengan group_id dari perumahaan
-        //     $fonnteService = new FonnteMessageService();
-        //     $fonnteService->sendToGroup($perumahaan->wa_group_id, $pesanNotifikasi);
+            // buat service dengan group_id dari perumahaan
+            $fonnteService = new FonnteMessageService();
+            $fonnteService->sendToGroup($perumahaan->wa_group_id, $pesanNotifikasi);
 
-        // } catch (\Throwable $e) {
-        //     Log::error('Gagal kirim WA setelah check-in: ' . $e->getMessage());
-        // }
+        } catch (\Throwable $e) {
+            Log::error('Gagal kirim WA setelah check-in: ' . $e->getMessage());
+        }
 
         Session::flash('success', 'Check-in berhasil!');
         return redirect()->route('absensi.checkinView'); // Pastikan route ada
