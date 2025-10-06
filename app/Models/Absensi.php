@@ -20,7 +20,7 @@ class Absensi extends Model
         'latitude',
         'longitude',
         'jangkauan_radius',
-          'perumahaan_id',
+        'perumahaan_id',
     ];
     protected $casts = [
         'tanggal' => 'date',

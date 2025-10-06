@@ -43,8 +43,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::prefix('absensi/')->group(function () {
-        Route::get('/check-in', [AbsensiController::class, 'checkInView']);
-        Route::post('/check-inAksi', [AbsensiController::class, 'checkInAksi']);
+        Route::get('/check-in', [AbsensiController::class, 'checkInView'])->name('absensi.checkinView');
+        Route::post('/check-inAksi', [AbsensiController::class, 'checkInAksi'])->name('absensi.checkinAksi');
         Route::get('/check-out', [AbsensiController::class, 'checkOutView']);
         Route::post('/check-outAksi', [AbsensiController::class, 'checkOutAksi']);
 
