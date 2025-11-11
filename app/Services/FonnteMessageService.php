@@ -12,7 +12,6 @@ class FonnteMessageService
 
     public function __construct()
     {
-        // Ambil dari .env
         $this->apiKey           = env('FONNTE_API_KEY', '');
         $this->fonnteSendApiUrl = env('FONNTE_SEND_API_URL', 'https://api.fonnte.com/send');
 
@@ -22,11 +21,7 @@ class FonnteMessageService
     }
 
     /**
-     * Kirim pesan teks ke grup WhatsApp.
-     *
-     * @param string $targetGroupId ID grup dari tabel perumahaan
-     * @param string $message Konten pesan
-     * @return bool
+     * Kirim pesan teks ke grup WhatsApp via Fonnte.
      */
     public function sendToGroup(string $targetGroupId, string $message): bool
     {
@@ -38,30 +33,47 @@ class FonnteMessageService
         }
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $this->apiKey,
-            ])->post($this->fonnteSendApiUrl, [
-                'target'  => $targetGroupId,
-                'message' => $message,
-            ]);
+            // Coba kirim dengan retry 3x, jeda 2 detik antar percobaan, timeout 15 detik
+            $response = Http::retry(3, 2000, function ($exception) {
+                // hanya retry kalau network error atau timeout
+                return $exception instanceof \Illuminate\Http\Client\ConnectionException;
+            })
+                ->timeout(15)
+                ->withHeaders([
+                    'Authorization' => $this->apiKey,
+                ])
+                ->post($this->fonnteSendApiUrl, [
+                    'target'  => $targetGroupId,
+                    'message' => $message,
+                ]);
 
+            // ✅ kalau sukses
             if ($response->successful() && $response->json('status')) {
                 Log::info('Pesan WhatsApp berhasil dikirim ke grup.', [
                     'group_id' => $targetGroupId,
-                    'response' => $response->json()
+                    'response' => $response->json(),
                 ]);
                 return true;
-            } else {
-                Log::error('Gagal mengirim pesan WhatsApp ke grup via Fonnte.', [
-                    'group_id'      => $targetGroupId,
-                    'status'        => $response->status(),
-                    'response_body' => $response->body()
-                ]);
-                return false;
             }
+
+            // ❌ kalau respon gagal (status 4xx/5xx)
+            Log::error('Gagal mengirim pesan WhatsApp ke grup via Fonnte.', [
+                'group_id'      => $targetGroupId,
+                'status'        => $response->status(),
+                'response_body' => $response->body(),
+            ]);
+            return false;
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // timeout / koneksi gagal
+            Log::error('Timeout saat mengirim pesan ke Fonnte.', [
+                'group_id' => $targetGroupId,
+                'error'    => $e->getMessage(),
+            ]);
+            return false;
         } catch (\Throwable $e) {
-            Log::error('Exception saat mengirim pesan WhatsApp via Fonnte: ' . $e->getMessage(), [
-                'trace' => $e->getTraceAsString()
+            Log::error('Exception saat mengirim pesan WhatsApp via Fonnte.', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return false;
         }
