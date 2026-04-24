@@ -38,6 +38,14 @@
 
     {{-- Filter & Export --}}
     <div class="w-full flex flex-col md:flex-row md:items-end md:justify-end justify-end gap-4 mb-6">
+        {{-- Tombol Bulk WA --}}
+        <div class="w-full md:w-auto flex justify-start md:justify-end">
+            <button type="button" id="bulk-send-wa"
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 shadow w-full md:w-auto justify-center hidden">
+                <i class="fab fa-whatsapp mr-2"></i> Kirim Notif Terpilih (<span id="selected-count">0</span>)
+            </button>
+        </div>
+
         {{-- Tombol Export --}}
         <div class="w-full md:w-auto flex justify-start md:justify-end">
             <a href="#" data-modal-target="pop-up-modal-export-excel" data-modal-toggle="pop-up-modal-export-excel"
@@ -96,6 +104,13 @@
     <table id="search-table">
         <thead>
             <tr>
+                <th scope="col" class="p-4">
+                    <div class="flex items-center">
+                        <input id="checkbox-all" type="checkbox"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="checkbox-all" class="sr-only">checkbox</label>
+                    </div>
+                </th>
                 <th scope="col" class="px-6 py-3">
                     <span class="flex items-center">
                         Nama Lengkap
@@ -156,11 +171,22 @@
                         </svg>
                     </span>
                 </th>
+                <th scope="col" class="px-6 py-3 text-center">
+                    <span class="flex items-center justify-center">
+                        Aksi
+                    </span>
+                </th>
             </tr>
         </thead>
         <tbody>
             @foreach ($dataRekapAbsensi as $item)
                 <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                    <td class="w-4 p-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="absensi_ids[]" value="{{ $item->id }}"
+                                class="absensi-checkbox w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                        </div>
+                    </td>
                     <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                         {{ $item->user->nama_lengkap }}
                     </td>
@@ -208,6 +234,16 @@
                         @else
                             -
                         @endif
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <form action="{{ route('rekap-absensi.send-wa', $item->id) }}" method="POST"
+                            onsubmit="return confirm('Kirim ulang notifikasi WhatsApp untuk {{ $item->user->nama_lengkap }}?')">
+                            @csrf
+                            <button type="submit"
+                                class="inline-flex items-center px-3 py-2 text-xs font-medium text-center text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                <i class="fab fa-whatsapp mr-1 text-sm"></i> Kirim Notif
+                            </button>
+                        </form>
                     </td>
                 </tr>
             @endforeach
@@ -303,6 +339,81 @@
             </div>
         </div>
     </div>
+
+    {{-- js bulk selection and send --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxAll = document.getElementById('checkbox-all');
+            const checkboxes = document.querySelectorAll('.absensi-checkbox');
+            const bulkBtn = document.getElementById('bulk-send-wa');
+            const selectedCountSpan = document.getElementById('selected-count');
+
+            function updateBulkBtn() {
+                const checkedCount = document.querySelectorAll('.absensi-checkbox:checked').length;
+                selectedCountSpan.textContent = checkedCount;
+                if (checkedCount > 0) {
+                    bulkBtn.classList.remove('hidden');
+                } else {
+                    bulkBtn.classList.add('hidden');
+                }
+            }
+
+            if (checkboxAll) {
+                checkboxAll.addEventListener('change', function() {
+                    checkboxes.forEach(cb => {
+                        cb.checked = checkboxAll.checked;
+                    });
+                    updateBulkBtn();
+                });
+            }
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateBulkBtn);
+            });
+
+            bulkBtn.addEventListener('click', function() {
+                const selectedIds = Array.from(document.querySelectorAll('.absensi-checkbox:checked'))
+                    .map(cb => cb.value);
+
+                if (selectedIds.length === 0) return;
+
+                Swal.fire({
+                    title: 'Kirim Notif Massal?',
+                    text: `Anda akan mengirim notifikasi WhatsApp untuk ${selectedIds.length} data absensi terpilih.`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1d4ed8',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Kirim Semua!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Create a hidden form to submit
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = "{{ route('rekap-absensi.bulk-send-wa') }}";
+
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = "{{ csrf_token() }}";
+                        form.appendChild(csrfToken);
+
+                        selectedIds.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            form.appendChild(input);
+                        });
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 
     {{-- js search table and sortir from flowbite datatables --}}
     <script>

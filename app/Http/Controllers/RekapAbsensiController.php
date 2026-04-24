@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Exports\AbsensiExport;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Services\FonnteMessageService;
 use Maatwebsite\Excel\Facades\Excel;
 
 class RekapAbsensiController extends Controller
@@ -250,4 +252,102 @@ class RekapAbsensiController extends Controller
         }
     }
 
+    public function sendWaNotif($id)
+    {
+        try {
+            $absensi = Absensi::with(['user.perumahaan', 'user.devisi'])->findOrFail($id);
+            $user = $absensi->user;
+            $perumahaan = $user->perumahaan;
+
+            if (!$perumahaan || !$perumahaan->wa_group_id) {
+                return redirect()->back()->with('error', 'Group WhatsApp perumahaan tidak ditemukan.');
+            }
+
+            $formattedDate = Carbon::parse($absensi->tanggal)->translatedFormat('d-m-Y');
+            $pesanNotifikasi = "";
+
+            if ($absensi->jenis === 'check_in') {
+                $formattedTime = Carbon::parse($absensi->waktu_masuk)->format('H:i');
+                $pesanNotifikasi = "*" . $user->nama_lengkap . "* hadir pada " . $formattedDate . " " . $formattedTime . ".";
+            } elseif ($absensi->jenis === 'check_out') {
+                $formattedTime = Carbon::parse($absensi->waktu_keluar)->format('H:i');
+                $pesanNotifikasi = "Terima kasih *" . $user->nama_lengkap . "* sudah bekerja secara profesional hingga pukul " . $formattedTime . ".";
+            } elseif (in_array($absensi->jenis, ['sakit', 'izin'])) {
+                $jenisAbsen = ucfirst($absensi->jenis);
+                $pesanNotifikasi = "*" . $user->nama_lengkap . "* tidak dapat hadir dikarenakan *" . $jenisAbsen . "* pada tanggal " . $formattedDate . ".\n*Keterangan:* " . $absensi->keterangan;
+            }
+
+            if (empty($pesanNotifikasi)) {
+                return redirect()->back()->with('error', 'Format pesan untuk jenis absensi ini belum diatur.');
+            }
+
+            $fonnteService = new FonnteMessageService();
+            $fonnteService->sendToGroup($perumahaan->wa_group_id, $pesanNotifikasi);
+
+            return redirect()->back()->with('success', 'Notifikasi WhatsApp berhasil dikirim ke group!');
+        } catch (\Throwable $e) {
+            Log::error('Gagal kirim WA manual dari Rekap: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengirim notifikasi: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkSendWaNotif(Request $request)
+    {
+        $ids = $request->input('ids');
+
+        if (empty($ids)) {
+            return redirect()->back()->with('error', 'Pilih setidaknya satu data absensi.');
+        }
+
+        try {
+            $absensis = Absensi::with(['user.perumahaan', 'user.devisi'])->whereIn('id', $ids)->get();
+            $fonnteService = new FonnteMessageService();
+            $successCount = 0;
+            $failCount = 0;
+
+            foreach ($absensis as $absensi) {
+                $user = $absensi->user;
+                $perumahaan = $user->perumahaan;
+
+                if (!$perumahaan || !$perumahaan->wa_group_id) {
+                    $failCount++;
+                    continue;
+                }
+
+                $formattedDate = Carbon::parse($absensi->tanggal)->translatedFormat('d-m-Y');
+                $pesanNotifikasi = "";
+
+                if ($absensi->jenis === 'check_in') {
+                    $formattedTime = Carbon::parse($absensi->waktu_masuk)->format('H:i');
+                    $pesanNotifikasi = "*" . $user->nama_lengkap . "* hadir pada " . $formattedDate . " " . $formattedTime . ".";
+                } elseif ($absensi->jenis === 'check_out') {
+                    $formattedTime = Carbon::parse($absensi->waktu_keluar)->format('H:i');
+                    $pesanNotifikasi = "Terima kasih *" . $user->nama_lengkap . "* sudah bekerja secara profesional hingga pukul " . $formattedTime . ".";
+                } elseif (in_array($absensi->jenis, ['sakit', 'izin'])) {
+                    $jenisAbsen = ucfirst($absensi->jenis);
+                    $pesanNotifikasi = "*" . $user->nama_lengkap . "* tidak dapat hadir dikarenakan *" . $jenisAbsen . "* pada tanggal " . $formattedDate . ".\n*Keterangan:* " . $absensi->keterangan;
+                }
+
+                if (!empty($pesanNotifikasi)) {
+                    $sent = $fonnteService->sendToGroup($perumahaan->wa_group_id, $pesanNotifikasi);
+                    if ($sent) {
+                        $successCount++;
+                    } else {
+                        $failCount++;
+                    }
+                } else {
+                    $failCount++;
+                }
+            }
+
+            if ($successCount > 0) {
+                return redirect()->back()->with('success', "$successCount notifikasi WhatsApp berhasil dikirim ke group!" . ($failCount > 0 ? " ($failCount gagal)" : ""));
+            } else {
+                return redirect()->back()->with('error', "Gagal mengirim notifikasi WhatsApp. Pastikan Group ID WA sudah diatur.");
+            }
+        } catch (\Throwable $e) {
+            Log::error('Gagal kirim WA massal dari Rekap: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengirim notifikasi massal: ' . $e->getMessage());
+        }
+    }
 }

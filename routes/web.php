@@ -32,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/jam-kerja', JamKerjaController::class);
 
         Route::get('/rekap-absensi/export', [RekapAbsensiController::class, 'exportExcel'])->name('rekap.export');
+        Route::post('/rekap-absensi/send-wa/{id}', [RekapAbsensiController::class, 'sendWaNotif'])->name('rekap-absensi.send-wa');
+        Route::post('/rekap-absensi/bulk-send-wa', [RekapAbsensiController::class, 'bulkSendWaNotif'])->name('rekap-absensi.bulk-send-wa');
         Route::resource('/rekap-absensi', RekapAbsensiController::class);
     });
 
